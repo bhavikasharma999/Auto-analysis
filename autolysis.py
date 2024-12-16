@@ -42,6 +42,7 @@ def analyze_data(df):
     return summary_stats, missing_values, corr_matrix
 
 
+
 # Function to identify outliers using the IQR method
 def detect_outliers(df):
     print("Identifying outliers...")  # Debugging statement
@@ -57,6 +58,27 @@ def detect_outliers(df):
     print("Outlier detection completed.")  # Debugging statement
     return outliers
 
+# feature_importance_analysis
+def feature_importance_analysis(data, target_column):
+    """Analyze feature importance using a Random Forest."""
+    global feature_importance_results
+    numeric_data = data.select_dtypes(include="number").dropna()
+    if target_column not in numeric_data.columns:
+        print(f"Target column '{target_column}' is not numeric or not available.")
+        return None
+
+    X = numeric_data.drop(columns=[target_column])
+    y = numeric_data[target_column]
+    model = RandomForestRegressor(random_state=42)
+    model.fit(X, y)
+    importance = pd.DataFrame({
+        'Feature': X.columns,
+        'Importance': model.feature_importances_
+    }).sort_values(by='Importance', ascending=False)
+    print("Feature Importance Analysis:")
+    print(importance)
+    feature_importance_results = importance
+    return importance
 
 # Function to create visualizations (correlation heatmap, outlier plot, and distribution plot)
 def visualize_data(corr_matrix, outliers, df, output_dir):
@@ -248,6 +270,7 @@ def question_llm(prompt, context):
     except Exception as e:
         print(f"Error: {e}")
         return "Failed to generate story."
+
 
 
 # Main function that integrates all the steps
